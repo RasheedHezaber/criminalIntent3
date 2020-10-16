@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,27 +21,30 @@ class CrimeListFragment : Fragment() {
         ViewModelProviders.of(this).get(CrimeListViweModle::class.java)
     }
     private lateinit var crimeRecyclerView: RecyclerView
-    private var adapter: CrimeAdapter? = null
-
+    private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
     }
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-        updateUI()
-
+        //updateUI()
+        crimeRecyclerView.adapter = adapter
         return view
     }
 
-    private fun updateUI() {
-        val crimes =
-            crimeListViewModel.crimes
-        adapter = CrimeAdapter (crimes)
-        crimeRecyclerView .adapter = adapter
+     fun updateUI(crimes: List<Crime>) {
+        //val crimes = crimeListViewModel.crimes
+       adapter = CrimeAdapter(crimes)
+         crimeRecyclerView.adapter = adapter
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+      crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer { crimes-> crimes.let { updateUI(crimes) }})
     }
     abstract open  class CrimeHolder(view: View) : RecyclerView.ViewHolder(view){
         abstract open fun bind(item:Crime)
@@ -69,7 +73,8 @@ class CrimeListFragment : Fragment() {
                 View.VISIBLE
             }
             else
-                View.GONE }
+                View.GONE
+        }
     }
 
 
@@ -93,7 +98,7 @@ class CrimeListFragment : Fragment() {
 
 
         override fun getItemViewType(position: Int): Int {
-            return if (crimes[position].requiredPolice == 1)
+            return if (crimes[position].isSolved == false)
                 return requiredCrime
             else
                 return normalCrime

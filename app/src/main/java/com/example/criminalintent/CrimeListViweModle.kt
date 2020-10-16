@@ -3,9 +3,9 @@ package com.example.criminalintent
 import androidx.lifecycle.ViewModel
 
 class CrimeListViweModle: ViewModel() {
-    val crimes = mutableListOf<Crime>()
+   // var crimes = mutableListOf<Crime>()
 
-    init {
+  /*  init {
         for (i in 0 until 100) {
             val crime = Crime()
             crime.title = "crime #$i"
@@ -18,5 +18,7 @@ class CrimeListViweModle: ViewModel() {
             crimes+=crime
         }
 
-        }
+        }*/
+
+  val  crimeListLiveData = CrimeRepository.get().getCrimes()
     }
